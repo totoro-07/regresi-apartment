@@ -1,4 +1,4 @@
-# 🏢 Prediksi Harga Sewa Apartemen
+# 🏢 Prediksi Harga Sewa Apartemen [Ahmad Radesta]
 
 Proyek ini bertujuan untuk membangun model prediktif berbasis machine learning guna memperkirakan harga sewa apartemen berdasarkan fitur-fitur properti seperti luas bangunan, jumlah kamar, kamar mandi, dan lokasi.
 
