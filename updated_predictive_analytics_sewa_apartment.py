@@ -115,8 +115,8 @@ Dataset diambil dari [Apartments for Rent Classified](https://www.kaggle.com/dat
 Menjalankan proses transformasi atau analisis data.
 """
 
-# from google.colab import files
-# uploaded = files.upload()  # upload file music.zip
+from google.colab import files
+uploaded = files.upload()
 
 """### 🔧 Proses Analisis/Data Preparation
 Menjalankan proses transformasi atau analisis data.
@@ -293,6 +293,7 @@ plt.show()
 
 #Menampilkan heatmap untuk korelasi antar fitur numerik
 plt.figure(figsize=(10, 8))
+numeric_columns = ['bathrooms', 'bedrooms', 'price','square_feet']
 correlation_matrix = cleaned_df[numeric_columns].corr().round(2)
 sns.heatmap(data=correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5, )
 plt.title("Correlation Matrix untuk Fitur Numerik ", size=20)
