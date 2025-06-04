@@ -46,6 +46,45 @@ Dalam proyek ini, kami mengangkat isu tersebut dan membangun sistem prediktif me
 - **Jumlah baris:** 10.000
 - **Jumlah kolom:** 22
 
+| #   | Column         | Dtype   |
+|-----|----------------|---------|
+| 0   | id             | int64   |
+| 1   | category       | object  |
+| 2   | title          | object  |
+| 3   | body           | object  |
+| 4   | amenities      | object  |
+| 5   | bathrooms      | float64 |
+| 6   | bedrooms       | float64 |
+| 7   | currency       | object  |
+| 8   | fee            | object  |
+| 9   | has_photo      | object  |
+| 10  | pets_allowed   | object  |
+| 11  | price          | int64   |
+| 12  | price_display  | object  |
+| 13  | price_type     | object  |
+| 14  | square_feet    | int64   |
+| 15  | address        | object  |
+| 16  | cityname       | object  |
+| 17  | state          | object  |
+| 18  | latitude       | float64 |
+| 19  | longitude      | float64 |
+| 20  | source         | object  |
+| 21  | time           | int64   |
+
+
+Dataset mempunyai beberapa fitur yang terdapat missing value.
+| | Tipe Data | Jumlah Missing Value |
+|----------|----------|----------|
+|amenities|object|3549
+|bathrooms|float64|34
+|bedrooms|float64|7
+|pets_allowed|bject|4163
+|address|object|3327
+|cityname|object|77
+|state|object|77
+|latitude|float64|10
+|longitude|float64|10
+
 ### Deskripsi Fitur:
 | Fitur         | Deskripsi                                  |
 |--------------|---------------------------------------------|
@@ -71,6 +110,7 @@ Dalam proyek ini, kami mengangkat isu tersebut dan membangun sistem prediktif me
 | `longitude`  | Koordinat geografis                        |
 | `source`     | Platform sumber listing                     |
 | `time`       | Waktu pengambilan data                      |
+
 
 ### Kondisi Data
 - Missing value terdapat pada kolom: `amenities`, `pets_allowed`, dan `address`.
