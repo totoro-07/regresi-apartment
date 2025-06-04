@@ -19,19 +19,22 @@ Dalam proyek ini, kami mengangkat isu tersebut dan membangun sistem prediktif me
 
 ## 🎯 2. Business Understanding
 
-1. Harga sewa apartemen yang tercantum di iklan seringkali tidak mencerminkan nilai pasar aktual.
-2. Sulit bagi pemilik atau penyewa untuk menentukan apakah harga tersebut wajar atau tidak.
+1. Harga sewa yang ditampilkan pada iklan sering kali tidak mencerminkan nilai pasar yang sebenarnya.
+2. Pengguna (pemilik atau penyewa) kesulitan untuk menentukan apakah harga sewa suatu apartemen tergolong mahal atau murah berdasarkan karakteristiknya.
 
 ### Goals
-Membangun model machine learning untuk memprediksi harga sewa apartemen berdasarkan fitur-fitur seperti lokasi, ukuran, jumlah kamar, dan deskripsi properti.
+1. Membangun model machine learning untuk memprediksi harga sewa apartemen berdasarkan fitur properti.
 
+2. Membandingkan performa beberapa model regresi untuk menemukan model terbaik.
+
+3. Mengidentifikasi fitur-fitur yang paling berpengaruh terhadap harga sewa apartemen.
 
 ### Solution Statement
 - **Ridge Regression** dan **Lasso Regression**  
-  Model regresi linier dengan regularisasi (L2 dan L1) digunakan sebagai baseline. Model ini mudah diinterpretasikan dan cepat dalam pelatihan, serta mampu menangani multikolinearitas.
+  Digunakan sebagai model baseline. Memberikan interpretasi yang sederhana dan cepat dilatih, serta dapat menangani multikolinearitas.
 - **Random Forest Regressor**, **Gradient Boosting**, **XGBoost**, **CatBoost**, dan **LightGBM**  
-  Kelompok model ensemble yang mampu menangkap hubungan non-linear antara fitur dan harga sewa. XGBoost dan LightGBM dikenal cepat dan akurat, sementara CatBoost menangani fitur kategori secara efisien.
-- **RMSE (Root Mean Squared Error)** – untuk mengukur kesalahan prediksi
+  Termasuk Random Forest, Gradient Boosting, XGBoost, CatBoost, dan LightGBM untuk menangkap hubungan non-linear antar fitur dan target.
+- **RMSE (Root Mean Squared Error)** – RMSE digunakan sebagai metrik utama untuk mengukur akurasi prediksi.
 
 ## 📊 3. Data Understanding
 
@@ -39,74 +42,116 @@ Membangun model machine learning untuk memprediksi harga sewa apartemen berdasar
 
 Dataset diambil dari [Apartments for Rent Classified](https://www.kaggle.com/datasets/adithyaawati/apartments-for-rent-classified).
 
-**Informasi Dataset**
-
-- File: apartments_for_rent_classified_100K.csv
-
 ### Informasi Dataset
-- **File:** `apartments_for_rent_classified_100K.csv`
-- **Jumlah data:** ~100.000 baris
-- **Fitur utama:** `price`, `bedrooms`, `bathrooms`, `size_sqft`, `location`, `description`, `category`
+- **File:** `apartments_for_rent_classified_10K.csv`
+- **Jumlah data:** 10.000 baris
+- **Jumlah Kolom:**  22
+
+### Deskripsi Fitur:
+| Fitur                          | Deskripsi                                     |
+| ------------------------------ | --------------------------------------------- |
+| `id`                           | ID unik untuk setiap listing apartemen        |
+| `amenities`                    | Daftar fasilitas yang disediakan              |
+| `currency`                     | Mata uang yang digunakan untuk harga          |
+| `fee`                          | Biaya tambahan selain harga sewa utama        |
+| `has_photo`                    | Boolean, apakah terdapat foto di listing      |
+| `pets_allowed`                 | Boolean, apakah hewan peliharaan diizinkan    |
+| `price_display`                | Format tampilan harga di listing              |
+| `price_type`                   | Tipe harga, misalnya bulanan atau tahunan     |
+| `address`                      | Alamat apartemen                              |
+| `cityname`                     | Nama kota tempat apartemen berada             |
+| `state`                        | Negara bagian atau wilayah                    |
+| `latitude`, `longitude`        | Koordinat lokasi geografis apartemen          |
+| `source`                       | Sumber atau platform pengiklan                |
+| `time`                         | Timestamp kapan data diambil                  |
+| `price`                        | Harga sewa apartemen (target)                 |
+| `bedrooms`                     | Jumlah kamar tidur                            |
+| `bathrooms`                    | Jumlah kamar mandi                            |
+| `sqfeet`                       | Luas apartemen dalam satuan kaki persegi      |
+| `cats_allowed`, `dogs_allowed` | Apakah kucing atau anjing diizinkan           |
+| `region`                       | Wilayah administratif tempat apartemen berada |
+| `type`                         | Jenis properti, misal apartment, condo, dsb   |
+
 
 ### Kondisi Data
-- Terdapat missing value pada beberapa kolom
-- Distribusi harga tidak normal (ada outlier ekstrem)
+- Terdapat missing value pada beberapa kolom seperti amenities dan fee
+- Distribusi harga sewa sangat skewed dan mengandung outlier
 
-### Penjelasan Fitur
-- `price`: target prediksi
-- `bedrooms`, `bathrooms`, `size_sqft`: fitur numerik
-- `location`, `description`: fitur kategori/teks
-- `category`: jenis unit (apartment, studio, dll)
 
 ### EDA *(Rubrik Tambahan)*
-- Korelasi fitur terhadap harga
-- Distribusi harga berdasarkan lokasi
-- Word frequency dari deskripsi properti
+- Visualisasi distribusi price dan sqfeet
+
+- Korelasi antara bedrooms, bathrooms, dan price
+
+- Analisis frekuensi kata dalam kolom amenities
 
 
 ---
 
 ## 🧹 4. Data Preparation
 
-### ✅ Langkah yang dilakukan:
-1. **Missing Value Handling**  
-   Menghapus baris dengan nilai kosong yang signifikan.
-2. **Encoding Kategorikal**  
-   Fitur seperti `city` diencode dengan Label Encoding.
-3. **Normalisasi**  
-   Fitur numerik dinormalisasi untuk mempercepat konvergensi model.
-4. **Train-Test Split**  
-   Data dibagi 80:20 untuk melatih dan mengevaluasi model.
+1. Penanganan Missing Value:
+Baris dengan nilai kosong penting dihapus menggunakan dropna().
+
+Fitur teks seperti amenities, type, dan fee diisi dengan nilai "tidak tersedia" menggunakan fillna("tidak tersedia").
+
+2. Penghapusan Kolom Tidak Relevan:
+Beberapa fitur dihapus karena tidak relevan atau redundan, seperti: id, time, address, price_display, price_type, currency, source.
+
+3. Encoding Fitur Kategorikal:
+Fitur cityname, state, type, dan region dikodekan menggunakan One-Hot Encoding (pd.get_dummies()), bukan Label Encoding.
+
+4. Transformasi Variabel Target:
+Variabel target price ditransformasikan menggunakan PowerTransformer untuk mengurangi skewness distribusi.
+
+5. Splitting Data:
+Dataset dibagi menjadi data latih dan data uji menggunakan train_test_split dengan rasio 80:20.
+
+6. Normalisasi Data:
+Data numerik seperti bedrooms, bathrooms, sqfeet, dst., dinormalisasi menggunakan StandardScaler untuk meningkatkan performa model.
 
 
 ---
 
 ## 🤖 5. Modeling
 
-Model yang dibangun:
-- XGBoost
-- CatBoost
-- Random Forest
-- LightGBM
-- Bayesian Ridge
-- Ridge Regression
-- Gradient Boosting
-- Support Vector Regression
-- K-Nearest Neighbors (KNN)
-- Lasso Regression
-![Perbandingan RMSE Antar Model](![alt text](image.png))
+## 🧠 Algoritma yang Digunakan
 
-
-### 🔧 Pemodelan & Tuning
-- Model RF & GBoost dituning dengan GridSearchCV
-- Parameter: `n_estimators`, `max_depth`, `learning_rate`, dll.
-
-### 📌 Pemilihan Model Terbaik
-Model Gradient Boosting dipilih karena menghasilkan error terkecil (RMSE) dan stabil terhadap data uji.
-
-> Kelebihan/kekurangan tiap model juga dibahas pada bagian evaluasi.
+### 🔹 K-Nearest Neighbors (KNN)
+- Memprediksi harga berdasarkan rata-rata harga dari **K tetangga terdekat** dalam ruang fitur.
+- **Parameter yang digunakan:**  
+  `n_neighbors = 4`
 
 ---
+
+### 🔹 Random Forest Regressor
+- Model **ensemble** yang terdiri dari banyak pohon keputusan.
+- Hasil prediksi diambil dari rata-rata prediksi seluruh pohon.
+- **Parameter:**  
+  Menggunakan parameter default, dengan tuning awal pada:  
+  `n_estimators`, `max_depth`
+
+---
+
+### 🔹 XGBoost Regressor
+- Model **gradient boosting** yang membangun pohon secara bertahap untuk meminimalkan kesalahan dari model sebelumnya.
+- **Parameter:**  
+  `verbosity = 0`, `n_estimators`, `learning_rate`, `max_depth`  
+  (tuning disiapkan namun belum sepenuhnya diselesaikan)
+
+---
+
+### 🔹 CatBoost Regressor
+- Model **boosting** yang efisien dalam menangani fitur kategorikal tanpa perlu pra-pemrosesan tambahan.
+- **Parameter:**  
+  `verbose = 0`
+
+---
+
+### 🛠️ Tuning Parameter
+- Proses **GridSearchCV** telah dicoba untuk beberapa model, namun tidak seluruhnya ditampilkan dalam notebook akhir.
+- **Rekomendasi ke depan:** Melakukan tuning parameter lebih lanjut secara sistematis untuk mengoptimalkan performa model.
+
 
 ## 📏 Evaluation
 
