@@ -149,6 +149,8 @@ Dalam proyek ini, kami mengangkat isu tersebut dan membangun sistem prediktif me
 
 ### Hasil Evaluasi:
 
+![Hasil Evaluasi](image.png)
+
 | No | Model              | RMSE     | MAE      | R² Score  |
 |----|--------------------|----------|----------|-----------|
 | 1  | XGBoost            | 0.5191   | 0.3762   | 0.7245    |
@@ -167,3 +169,5 @@ Dalam proyek ini, kami mengangkat isu tersebut dan membangun sistem prediktif me
 - **CatBoost** dan **Random Forest** juga kompetitif.
 - **Lasso Regression** berkinerja buruk dan tidak direkomendasikan.
 - Perlu tuning parameter lebih lanjut untuk hasil optimal.
+![Actual vs predict (XGboost)](image-1.png)
+
