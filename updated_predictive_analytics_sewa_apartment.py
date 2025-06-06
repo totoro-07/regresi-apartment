@@ -189,21 +189,7 @@ Melihat ringkasan statistik numerik dari dataset.
 
 df.describe()
 
-"""## 4.Data Preparation
-
-### Langkah-Langkah
-- Handling missing values (median imputation untuk numerik, `'unknown'` untuk kategori)
-- **Feature engineering:**
-  - Ekstraksi keyword dari `description`
-  - Encoding lokasi menggunakan One-Hot/Target Encoding
-- Normalisasi numerik (opsional untuk model linear)
-
-### Alasan Tahapan
-- Menghindari bias dari data tidak lengkap
-- Mengubah fitur teks menjadi representasi numerik
-- Memastikan model dapat belajar dari representasi yang konsisten
-
-### 🔧 Proses Analisis/Data Preparation
+"""### 🔧 Proses Analisis/Data Preparation
 Menjalankan proses transformasi atau analisis data.
 """
 
@@ -226,9 +212,7 @@ Menghapus kolom/baris yang dianggap tidak relevan atau memiliki banyak missing v
 # Salin dataset untuk menjaga data asli tetap utuh
 cleaned_df = df.copy()
 
-# Hapus baris yang memiliki nilai kosong pada kolom-kolom penting karena dianggap berdampak terhadap keakuratan model
-kolom_wajib = ['bathrooms', 'bedrooms', 'cityname', 'state', 'latitude', 'longitude']
-cleaned_df = cleaned_df.dropna(subset=kolom_wajib)
+cleaned_df = cleaned_df.dropna(subset=['bathrooms', 'bedrooms','cityname','state','latitude','longitude'])
 
 """### 🔍 Penanganan Missing Values
 Mendeteksi dan/atau mengisi nilai-nilai yang hilang dalam dataset.
@@ -291,17 +275,6 @@ plt.show()
 
 """
 
-#Menampilkan heatmap untuk korelasi antar fitur numerik
-plt.figure(figsize=(10, 8))
-numeric_columns = ['bathrooms', 'bedrooms', 'price','square_feet']
-correlation_matrix = cleaned_df[numeric_columns].corr().round(2)
-sns.heatmap(data=correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5, )
-plt.title("Correlation Matrix untuk Fitur Numerik ", size=20)
-
-"""### ⚠️ Menghapus Outlier
-Menggunakan metode IQR untuk membersihkan data dari nilai-nilai ekstrem.
-"""
-
 #Fungsi untuk menghapus outlier
 def remove_outliers_iqr(df, column):
     Q1 = df[column].quantile(0.25)
@@ -316,19 +289,67 @@ numeric_columns = ['bathrooms', 'bedrooms', 'price','square_feet']
 
 #Menghapus outliers dari masing-masing kolom
 for column in numeric_columns:
-    train_df_cleaned = remove_outliers_iqr(cleaned_df, column)
+    cleaned_df = remove_outliers_iqr(cleaned_df, column)
 
 # Verifikasi hasil
 cleaned_df.shape
 
-"""|                  | bathrooms | bedrooms | price | square\_feet |
-| ---------------- | --------- | -------- | ----- | ------------ |
-| **bathrooms**    | 1.00      | 0.71     | 0.41  | 0.80         |
-| **bedrooms**     | 0.71      | 1.00     | 0.31  | 0.74         |
-| **price**        | 0.41      | 0.31     | 1.00  | 0.46         |
-| **square\_feet** | 0.80      | 0.74     | 0.46  | 1.00         |
+#Menampilkan heatmap untuk korelasi antar fitur numerik
+plt.figure(figsize=(10, 8))
+numeric_columns = ['bathrooms', 'bedrooms', 'price','square_feet']
+correlation_matrix = cleaned_df[numeric_columns].corr().round(2)
+sns.heatmap(data=correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5, )
+plt.title("Correlation Matrix untuk Fitur Numerik ", size=20)
 
-**Feature Engineering**
+"""|                  | bathrooms | bedrooms | price | square_feet |
+| ---------------- | --------- | -------- | ----- | ------------ |
+| **bathrooms**    | 1.00      | 0.59     | 0.27  | 0.71         |
+| **bedrooms**     | 0.59      | 1.00     | 0.18  | 0.63         |
+| **price**        | 0.27      | 0.18     | 1.00  | 0.31         |
+| **square_feet**  | 0.71      | 0.63     | 0.31  | 1.00         |
+
+## 4.Data Preparation
+
+### 🔧 Proses Seleksi dan Transformasi Fitur
+
+Beberapa tahapan penting dilakukan dalam proses persiapan data untuk memastikan bahwa hanya fitur yang relevan dan informatif yang digunakan dalam pelatihan model:
+
+- **Penghapusan Fitur Tidak Relevan**  
+  Fitur-fitur yang tidak berkontribusi secara signifikan terhadap proses analisis atau prediksi dihilangkan dari dataset.
+
+- **Encoding Variabel Kategorikal**  
+  Fitur dengan tipe kategorikal diubah menjadi representasi numerik agar dapat diproses oleh algoritma machine learning.
+
+- **Pembagian Dataset**  
+  Dataset dibagi menjadi data latih dan data uji menggunakan fungsi `train_test_split` dari pustaka `scikit-learn` dengan proporsi yang seimbang.
+
+- **Standarisasi Fitur Numerik**  
+  Seluruh fitur numerik distandarisasi agar berada pada skala yang seragam, mencegah bias terhadap fitur dengan skala yang lebih besar.
+
+---
+
+## 🗃️ Daftar Fitur yang Dihapus
+
+Berikut adalah fitur-fitur yang dihapus karena tidak memiliki kontribusi terhadap kualitas model atau karena bersifat redundan:
+
+| No | Nama Fitur      | Alasan Penghapusan                                           |
+|----|------------------|--------------------------------------------------------------|
+| 1  | `id`             | Tidak memiliki nilai prediktif                               |
+| 2  | `category`       | Nilainya sama di seluruh dataset                             |
+| 3  | `title`          | Informasi teks tidak digunakan dalam model numerik          |
+| 4  | `body`           | Sama seperti `title`, tidak berkontribusi dalam prediksi     |
+| 5  | `currency`       | Tidak memiliki variasi (konstan)                             |
+| 6  | `fee`            | Nilainya seragam                                             |
+| 7  | `price_display`  | Duplikat dari fitur `price`                                  |
+| 8  | `price_type`     | Tidak memiliki variasi (konstan)                             |
+| 9  | `address`        | Informasi geografis tidak digunakan secara langsung          |
+| 10 | `latitude`       | Dianggap tidak relevan untuk model saat ini                 |
+| 11 | `longitude`      | Sama seperti `latitude`                                      |
+| 12 | `time`           | Tidak memberikan kontribusi terhadap prediksi harga         |
+
+---
+
+> 📌 Penghapusan fitur-fitur tersebut bertujuan untuk menyederhanakan model, mengurangi kompleksitas, dan fokus pada fitur-fitur yang benar-benar berdampak terhadap performa prediktif.
 
 ### 🧹 Penghapusan Kolom atau Baris
 Menghapus kolom/baris yang dianggap tidak relevan atau memiliki banyak missing value.
@@ -370,10 +391,10 @@ y = cleaned_df["price"]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
 
 # Standarisasi fitur numerik
-numerical_features = ['bathrooms', 'bedrooms', 'square_feet']
+numerical_features = ['bathrooms','bedrooms','square_feet']
 scaler = StandardScaler()
 scaler.fit(X_train[numerical_features])
-X_train[numerical_features] = scaler.transform(X_train[numerical_features])
+X_train[numerical_features] = scaler.transform(X_train.loc[:, numerical_features])
 X_train[numerical_features].head()
 
 """## 5.Model dan evaluasi
@@ -386,46 +407,7 @@ Proyek ini menggunakan tiga jenis model machine learning dengan tujuan yang berb
 
 ---
 
-### 🔧 Proses Analisis/Data Preparation
-Menjalankan proses transformasi atau analisis data.
-"""
-
-# Check for non-positive values
-non_positive_values = cleaned_df['price'] <= 0
-print("Number of non-positive values in 'price':", non_positive_values.sum())
-
-"""### 🧹 Penghapusan Kolom atau Baris
-Menghapus kolom/baris yang dianggap tidak relevan atau memiliki banyak missing value.
-"""
-
-import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import PowerTransformer, StandardScaler
-
-# Pisahkan fitur dan target
-X = cleaned_df.drop('price', axis=1)
-y = cleaned_df['price']
-
-# Transformasi target menggunakan PowerTransformer (Yeo-Johnson)
-pt = PowerTransformer(method='yeo-johnson')
-y_transformed = pt.fit_transform(y.values.reshape(-1, 1)).flatten()  # Hasil transformasi dikembalikan ke bentuk 1D
-
-# Bagi data menjadi data latih dan data uji (80:20)
-X_train, X_test, y_train, y_test = train_test_split(X, y_transformed, test_size=0.2, random_state=42)
-
-# Standarisasi fitur numerik
-sc = StandardScaler()
-X_train = sc.fit_transform(X_train)
-X_test = sc.transform(X_test)
-
-# (Opsional) Cetak bentuk data sebagai verifikasi
-print("X_train shape:", X_train.shape)
-print("X_test shape:", X_test.shape)
-print("y_train shape:", y_train.shape)
-print("y_test shape:", y_test.shape)
-
-"""### 🤖 Melatih Model
+### 🤖 Melatih Model
 Melatih model machine learning dengan data yang telah disiapkan.
 """
 
@@ -437,28 +419,26 @@ from sklearn.neighbors import KNeighborsRegressor
 from xgboost import XGBRegressor
 from catboost import CatBoostRegressor
 from lightgbm import LGBMRegressor
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from tqdm import tqdm
 import numpy as np
 import pandas as pd
 
-# Daftar model
+# Daftar model dengan pipeline jika perlu scaling
 models = {
-    'ridge': Ridge(),
-    'xgboost': XGBRegressor(verbosity=0),
-    'catboost': CatBoostRegressor(verbose=0),
-    'lightgbm': LGBMRegressor(),
-    'gradient boosting': GradientBoostingRegressor(),
-    'lasso': Lasso(),
-    'random forest': RandomForestRegressor(),
-    'bayesian ridge': BayesianRidge(),
-    'support vector': SVR(),
-    'knn': KNeighborsRegressor(n_neighbors=4)
+    'SVR': Pipeline([('scaler', StandardScaler()), ('model', SVR())]),
+    'KNN': Pipeline([('scaler', StandardScaler()), ('model', KNeighborsRegressor(n_neighbors=4))]),
+    'Random Forest': RandomForestRegressor(random_state=42),
+    'Gradient Boosting': GradientBoostingRegressor(random_state=42),
+    'XGBoost': XGBRegressor(verbosity=0, random_state=42),
+    'CatBoost': CatBoostRegressor(verbose=0, random_state=42),
 }
 
-# Data evaluasi
 results = []
 
-# Training dan evaluasi masing-masing model
-for name, model in models.items():
+# Evaluasi setiap model
+for name, model in tqdm(models.items(), desc="Training Models"):
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
@@ -474,8 +454,9 @@ for name, model in models.items():
         'R2 Score': r2
     })
 
-# Hasil evaluasi sebagai DataFrame
+# Tampilkan hasil evaluasi
 results_df = pd.DataFrame(results).sort_values(by='RMSE', ascending=True)
+print(results_df)
 
 """### 📏 Evaluasi Model
 Mengukur performa model dengan metrik seperti RMSE atau MSE.
@@ -497,12 +478,9 @@ plt.grid(axis='y')
 plt.tight_layout()
 plt.show()
 
-"""| Tujuan                      | Rekomendasi                                                                 |
-| --------------------------- | --------------------------------------------------------------------------- |
-| Model yang akan digunakan   | Gunakan **XGBoost** sebagai baseline terbaik untuk deployment               |
-| Model pembanding (baseline) | Gunakan **Ridge** dan **Random Forest** untuk validasi model linear vs tree |
-| Optimasi lebih lanjut       | Lakukan **hyperparameter tuning** pada top 3 model (XGBoost, CatBoost, RF)  |
-| Model yang bisa dihapus     | Pertimbangkan untuk **tidak menggunakan Lasso dan KNN** di iterasi lanjutan |
+"""Gradient Boosting dan Random Forest memiliki performa terbaik.
+
+Ini sejalan dengan harapan, karena model ensemble seperti ini biasanya menangkap pola kompleks dengan baik dan cocok untuk berbagai dataset.
 
 ### 🔮 Melakukan Prediksi
 Menggunakan model untuk memprediksi harga berdasarkan fitur input.
@@ -514,7 +492,7 @@ plt.scatter(y_test, y_pred, alpha=0.5)
 plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')
 plt.xlabel('Actual')
 plt.ylabel('Predicted')
-plt.title('Actual vs Predicted Values (XGBoost)')
+plt.title('Actual vs Predicted Values (Gradient Boost)')
 plt.grid(True)
 plt.tight_layout()
 plt.show()

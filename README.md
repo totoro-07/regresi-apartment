@@ -124,59 +124,177 @@ Dataset mempunyai beberapa fitur yang terdapat missing value.
 
 ---
 
-## 🧹 4. Data Preparation
+# 🧹 Data Preparation
 
-1. **Penanganan Missing Value**:  
-   - Kolom `amenities`, `pets_allowed`, dan `address` diisi dengan nilai "tidak tersedia" menggunakan `fillna()`.
+Tahapan data preparation dilakukan untuk memastikan data yang digunakan dalam pelatihan model bersih, relevan, dan dalam format yang sesuai dengan kebutuhan algoritma machine learning.
 
-2. **Penghapusan Kolom Tidak Relevan**:  
-   - Kolom seperti `id`, `category`, `title`, `body`, `currency`, `fee`, `price_display`, `price_type`, `address`, `latitude`, `longitude`, dan `time` dihapus karena tidak relevan atau redundan.
+---
 
-3. **Penghapusan Outlier**:
-   - Menggunakan metode **IQR (Interquartile Range)** untuk mendeteksi dan menghapus outlier dari fitur numerik seperti `price`, `sqfeet`, dll.
+## 🔧 Teknik yang Digunakan
 
-4. **Encoding Fitur Kategorikal**:
-   - Fitur `cityname`, `state`, `has_photo`, `pets_allowed`, dan `amenities` diubah menjadi format numerik menggunakan One-Hot Encoding.
+- **Handling Missing Values**  
+  Menghapus atau mengisi nilai kosong untuk menjaga integritas data.
 
-5. **Transformasi Target**:
-   - Kolom `price` ditransformasikan menggunakan `PowerTransformer` untuk mengurangi skewness.
+- **Removing Outliers**  
+  Menghapus nilai ekstrem pada kolom numerik untuk mencegah distorsi model.
 
-6. **Pembagian Dataset**:
-   - Menggunakan `train_test_split` dengan rasio 80:20 untuk pelatihan dan pengujian.
+- **Dropping Irrelevant Features**  
+  Menghapus fitur yang tidak memiliki kontribusi prediktif atau memiliki nilai yang seragam.
 
-7. **Normalisasi Fitur Numerik**:
-   - Data seperti `sqfeet`, `bedrooms`, `bathrooms` dinormalisasi menggunakan `StandardScaler`.
+- **Encoding Categorical Variables**  
+  Mengubah variabel kategorikal menjadi format numerik menggunakan *One-Hot Encoding*.
+
+- **Train-Test Split**  
+  Membagi dataset menjadi data latih dan uji dengan rasio 80:20.
+
+- **Feature Scaling**  
+  Melakukan standarisasi nilai pada fitur numerik agar semua fitur memiliki skala yang setara menggunakan `StandardScaler`.
+
+---
+
+## 🧪 Rincian Proses Data Preparation
+
+- Fitur dengan **jumlah missing value < 100** dihapus dari dataset.
+- Fitur dengan **jumlah missing value > 1000** dilakukan imputasi.
+- Outlier diatasi menggunakan metode **Interquartile Range (IQR)**.
+- Fitur `id`, `latitude`, `longitude`, dan `time` dihapus karena tidak memberikan nilai tambah secara prediktif.
+- Fitur `category`, `currency`, `fee`, dan `price_type` dihapus karena memiliki nilai yang sama di seluruh baris data.
+- Fitur kategorikal dikonversi menggunakan **One-Hot Encoding**.
+- Dataset dibagi menjadi:
+  
+  | Jenis Dataset  | Jumlah |
+  |----------------|--------|
+  | Keseluruhan    | 8,136  |
+  | Data Latih     | 6,508  |
+  | Data Uji       | 1,628  |
+
+- Skala fitur numerik dinormalisasi menggunakan **StandardScaler** pada data latih dan data uji.
+
+---
+
+## 🎯 Alasan Dilakukannya Tahapan Ini
+
+- **Mengatasi Missing Values**  
+  Untuk menghindari error saat proses training model.
+
+- **Menghapus Outlier**  
+  Untuk meningkatkan akurasi model dan menghindari bias akibat nilai ekstrem.
+
+- **Menghapus Fitur Tak Relevan**  
+  Untuk menyederhanakan model dan mengurangi beban komputasi.
+
+- **Encoding Variabel Kategorikal**  
+  Agar data dapat diproses oleh algoritma yang hanya menerima input numerik.
+
+- **Pembagian Data 80:20**  
+  Untuk memastikan data latih cukup besar, sekaligus menyediakan data uji yang representatif.
+
+- **Standarisasi Fitur**  
+  Agar model tidak bias terhadap fitur yang memiliki skala lebih besar.
+
 
 ---
 
 ## 🤖 5. Modeling
 
-### Algoritma yang Digunakan:
+## 🔍 Model yang Digunakan
 
-- **K-Nearest Neighbors (KNN)**: Memprediksi berdasarkan rata-rata K tetangga terdekat.  
-  `n_neighbors = 4`
+### 🔹 Support Vector Regression (SVR)
+- **Parameter:** default
+- **Deskripsi:** Memproyeksikan data ke dimensi yang lebih tinggi untuk menemukan hyperplane terbaik dalam margin error tertentu. Cocok untuk regresi non-linear.
 
-- **Ridge Regression**: Regresi linear dengan regularisasi L2 untuk mengurangi multikolinearitas.
+---
 
-- **Lasso Regression**: Regresi linear dengan regularisasi L1 untuk seleksi fitur otomatis.
+### 🔹 K-Nearest Neighbors (KNN)
+- **Parameter:** `n_neighbors=4`
+- **Deskripsi:** Melakukan prediksi berdasarkan rata-rata nilai dari 4 tetangga terdekat berdasarkan jarak euclidean atau metrik lainnya.
 
-- **Random Forest Regressor**: Model ensemble berbasis pohon dengan prediksi berbasis voting rata-rata.
+---
 
-- **Gradient Boosting**: Membangun pohon bertahap berdasarkan residual error sebelumnya.
+### 🔹 Random Forest
+- **Parameter:** `random_state=42`
+- **Deskripsi:** Merupakan ensemble dari banyak pohon keputusan. Mengurangi overfitting dan meningkatkan akurasi dengan menggunakan data acak dan fitur subset.
 
-- **XGBoost Regressor**: Gradient boosting yang efisien dengan pruning dan regularisasi.
+---
 
-- **CatBoost Regressor**: Boosting model yang sangat efisien menangani data kategorikal.
+### 🔹 Gradient Boosting
+- **Parameter:** `random_state=42`
+- **Deskripsi:** Metode boosting yang membangun model secara iteratif, setiap model memperbaiki kesalahan dari model sebelumnya.
 
-- **LightGBM Regressor**: Gradient boosting yang cepat dengan histogram binning.
+---
 
-- **Bayesian Ridge Regression**: Regresi probabilistik dengan regularisasi berbasis prior distribusi.
+### 🔹 XGBoost
+- **Parameter:** `verbosity=0`, `random_state=42`
+- **Deskripsi:** Implementasi boosting yang cepat dan efisien, dengan kemampuan regularisasi (L1/L2) untuk menghindari overfitting.
 
-- **Support Vector Regressor (SVR)**: Menggunakan margin epsilon untuk memprediksi target dalam batas tertentu.
+---
 
-### Parameter
-- Mayoritas model menggunakan parameter default.
-- Beberapa parameter seperti `n_estimators`, `max_depth`, dan `learning_rate` diatur secara manual untuk XGBoost dan Random Forest.
+### 🔹 CatBoost
+- **Parameter:** `verbose=0`, `random_state=42`
+- **Deskripsi:** Algoritma boosting yang optimal untuk data kategorikal dan tidak memerlukan preprocessing yang kompleks.
+
+---
+
+## ✅ Kelebihan dan Kekurangan Setiap Model
+
+### SVR
+- **Kelebihan:**
+  - Cocok untuk data non-linear.
+  - Bisa dikontrol menggunakan parameter epsilon.
+- **Kekurangan:**
+  - Lambat saat digunakan pada dataset besar.
+  - Sangat sensitif terhadap skala fitur.
+
+---
+
+### KNN
+- **Kelebihan:**
+  - Simpel dan mudah dipahami.
+  - Tidak membutuhkan proses pelatihan eksplisit.
+- **Kekurangan:**
+  - Tidak efisien untuk dataset besar.
+  - Sensitif terhadap outlier dan skala fitur.
+
+---
+
+### Random Forest
+- **Kelebihan:**
+  - Akurat dan tahan terhadap overfitting.
+  - Cocok untuk data kompleks dan beragam.
+- **Kekurangan:**
+  - Kurang interpretatif.
+  - Membutuhkan sumber daya komputasi lebih besar.
+
+---
+
+### Gradient Boosting
+- **Kelebihan:**
+  - Akurasi tinggi.
+  - Efektif dalam menangani outlier.
+- **Kekurangan:**
+  - Membutuhkan tuning hyperparameter.
+  - Proses pelatihan relatif lambat.
+
+---
+
+### XGBoost
+- **Kelebihan:**
+  - Sangat efisien dan cepat.
+  - Mendukung regularisasi (L1, L2).
+- **Kekurangan:**
+  - Pengaturan parameter cukup kompleks.
+
+---
+
+### CatBoost
+- **Kelebihan:**
+  - Dapat menangani data kategorikal tanpa encoding manual.
+  - Minim kebutuhan preprocessing.
+- **Kekurangan:**
+  - Dokumentasi lebih terbatas dibanding XGBoost.
+  - Waktu pelatihan awal bisa lebih lambat.
+![Perbandingan Model](image.png)
+
 
 ---
 
@@ -189,25 +307,23 @@ Dataset mempunyai beberapa fitur yang terdapat missing value.
 
 ### Hasil Evaluasi:
 
-![Hasil Evaluasi](image.png)
+## 🧪 Tabel Hasil Evaluasi
 
-| No | Model              | RMSE     | MAE      | R² Score  |
-|----|--------------------|----------|----------|-----------|
-| 1  | XGBoost            | 0.5191   | 0.3762   | 0.7245    |
-| 2  | CatBoost           | 0.5241   | 0.3838   | 0.7192    |
-| 3  | LightGBM           | 0.5501   | 0.3991   | 0.6907    |
-| 4  | Gradient Boosting  | 0.6161   | 0.4645   | 0.6120    |
-| 5  | Lasso              | 0.9890   | 0.7774   | -0.0000   |
-| 6  | Random Forest      | 0.5351   | 0.3802   | 0.7073    |
-| 7  | Bayesian Ridge     | 0.5766   | 0.4080   | 0.6601    |
-| 8  | Support Vector     | 0.6373   | 0.4530   | 0.5849    |
-| 9  | K-Nearest Neighbors| 0.7499   | 0.5507   | 0.4252    |
-|10  | Ridge              | 0.6077   | 0.4203   | 0.6225    |
+| No | Model              |     RMSE     |     MAE      | R² Score  |
+|----|--------------------|--------------|--------------|-----------|
+| 1  | Gradient Boosting  | **441.08**   | 372.08       | 0.1231    |
+| 2  | Random Forest      | 463.08       | 385.64       | 0.0335    |
+| 3  | SVR                | 479.37       | **372.03**   | -0.0358   |
+| 4  | CatBoost           | 490.86       | 420.44       | -0.0860   |
+| 5  | XGBoost            | 534.93       | 462.75       | -0.2898   |
+| 6  | KNN                | 568.38       | 479.07       | -0.4561   |
 
-### Kesimpulan:
-- **XGBoost** memiliki performa terbaik berdasarkan RMSE dan R² Score.
-- **CatBoost** dan **Random Forest** juga kompetitif.
-- **Lasso Regression** berkinerja buruk dan tidak direkomendasikan.
-- Perlu tuning parameter lebih lanjut untuk hasil optimal.
+---
+
+## 📌 Kesimpulan
+
+- **Gradient Boosting** menunjukkan performa terbaik secara keseluruhan dengan nilai **RMSE dan R² Score tertinggi** di antara semua model.
+- **SVR** memiliki **MAE terendah**, menunjukkan error rata-rata prediksi yang kecil secara absolut, meskipun R²-nya negatif.
+- **KNN** dan **XGBoost** memiliki performa paling rendah berdasarkan semua metrik, menunjukkan bahwa model ini kurang cocok untuk dataset ini tanpa tuning lebih lanjut.
 ![Actual vs predict (XGboost)](image-1.png)
 
